@@ -22,11 +22,29 @@ end
 
 class Game
   include Selectable
-  attr_accessor :word
+  attr_accessor :word, :player
 
-  def initialize
+  def initialize(player)
+    @player = player
     @word = get_word(set_dictionary)
+  end
+
+  def display_player_tries
+    puts "You have #{player.tries} tries left"
   end
 end
 
-g = Game.new
+class Player
+  attr_accessor :tries
+
+  def initialize
+    @tries = 8
+  end
+
+  def enter_letter
+    gets
+  end
+end
+
+pl = Player.new
+g = Game.new(pl)
