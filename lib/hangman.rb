@@ -14,6 +14,10 @@ module Selectable
   def set_dictionary
     filter_words(trim_words(load_words))
   end
+
+  def get_word(dictionary)
+    dictionary.sample
+  end
 end
 
 class Game
@@ -21,7 +25,7 @@ class Game
   attr_accessor :word
 
   def initialize
-    @word = set_dictionary.sample
+    @word = get_word(set_dictionary)
   end
 end
 
