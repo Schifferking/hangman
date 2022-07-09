@@ -41,6 +41,19 @@ class Game
   def display_secret_word
     secret_word.split('').each { |letter| print "#{letter} " }
   end
+
+  def ask_player_letter
+    puts 'Please enter a valid letter'
+    player.enter_letter
+  end
+
+  def letter?(inp)
+    ('a'..'z').to_a.include?(inp)
+  end
+
+  def letter_in_word?(letter)
+    word.include?(letter)
+  end
 end
 
 class Player
@@ -51,12 +64,11 @@ class Player
   end
 
   def enter_letter
-    gets
+    gets.chomp.downcase
   end
 end
 
 pl = Player.new
 g = Game.new(pl)
-g.update_secret_word
-g.display_secret_word
-g.display_player_tries
+p g.word
+p g.letter_in_word?(pl.enter_letter)
