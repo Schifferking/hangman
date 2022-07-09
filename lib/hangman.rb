@@ -22,15 +22,24 @@ end
 
 class Game
   include Selectable
-  attr_accessor :word, :player
+  attr_accessor :secret_word, :word, :player
 
   def initialize(player)
     @player = player
     @word = get_word(set_dictionary)
+    @secret_word = ''
   end
 
   def display_player_tries
     puts "You have #{player.tries} tries left"
+  end
+
+  def update_secret_word
+    word.split('').each { @secret_word += '_' }
+  end
+
+  def display_secret_word
+    secret_word.split('').each { |letter| print "#{letter} " }
   end
 end
 
@@ -48,3 +57,6 @@ end
 
 pl = Player.new
 g = Game.new(pl)
+g.update_secret_word
+g.display_secret_word
+g.display_player_tries
