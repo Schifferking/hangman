@@ -76,9 +76,20 @@ class Game
 
     until letter?(letter)
       letter = player.enter_letter
+      break if letter?(letter)
+
       ask_player_letter
     end
+    puts
     letter
+  end
+
+  def remove_player_try
+    player.tries -= 1
+  end
+
+  def add_turn
+    @turn += 1
   end
 end
 
@@ -96,6 +107,13 @@ end
 
 pl = Player.new
 g = Game.new(pl)
-g.display_information
-letter = g.obtain_player_letter
-g.letter_in_word?(letter)
+while pl.tries.positive?
+  g.display_information
+  letter = g.obtain_player_letter
+  if g.letter_in_word?(letter)
+    puts 'correct letter'
+  else
+    g.remove_player_try
+  end
+  g.add_turn
+end
