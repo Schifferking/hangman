@@ -22,16 +22,18 @@ end
 
 class Game
   include Selectable
-  attr_accessor :secret_word, :word, :player
+  attr_accessor :secret_word, :word, :player, :turn
 
   def initialize(player)
     @player = player
     @word = get_word(set_dictionary)
     @secret_word = ''
+    @turn = 1
   end
 
   def display_player_tries
     puts "You have #{player.tries} tries left"
+    puts
   end
 
   def update_secret_word
@@ -40,11 +42,12 @@ class Game
 
   def display_secret_word
     secret_word.split('').each { |letter| print "#{letter} " }
+    puts
+    puts
   end
 
   def ask_player_letter
-    puts 'Please enter a valid letter'
-    player.enter_letter
+    print 'Please enter a valid letter: '
   end
 
   def letter?(inp)
@@ -53,6 +56,29 @@ class Game
 
   def letter_in_word?(letter)
     word.include?(letter)
+  end
+
+  def display_turn
+    puts "Turn #{turn}"
+    puts
+  end
+
+  def display_information
+    display_turn
+    update_secret_word
+    display_secret_word
+    display_player_tries
+    ask_player_letter
+  end
+
+  def obtain_player_letter
+    letter = nil
+
+    until letter?(letter)
+      letter = player.enter_letter
+      ask_player_letter
+    end
+    letter
   end
 end
 
@@ -70,5 +96,6 @@ end
 
 pl = Player.new
 g = Game.new(pl)
-p g.word
-p g.letter_in_word?(pl.enter_letter)
+g.display_information
+letter = g.obtain_player_letter
+g.letter_in_word?(letter)
