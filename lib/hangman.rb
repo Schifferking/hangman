@@ -82,9 +82,9 @@ class Game
   def obtain_player_letter
     letter = nil
 
-    until letter?(letter)
+    until letter?(letter) && !guessed_letters.include?(letter)
       letter = player.enter_letter
-      break if letter?(letter)
+      break if letter?(letter) && !guessed_letters.include?(letter)
 
       ask_player_letter
     end
