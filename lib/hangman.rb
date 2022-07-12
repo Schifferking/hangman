@@ -22,13 +22,15 @@ end
 
 class Game
   include Selectable
-  attr_accessor :secret_word, :word, :player, :turn
+  attr_accessor :secret_word, :word, :player, :turn, :guessed_letters
 
   def initialize(player)
     @player = player
     @word = get_word(set_dictionary)
     @secret_word = ''
     @turn = 1
+    @guessed_letters = ''
+    update_secret_word
   end
 
   def display_player_tries
@@ -37,7 +39,14 @@ class Game
   end
 
   def update_secret_word
-    word.split('').each { @secret_word += '_' }
+    @secret_word = ''
+    word.split('').each do |letter|
+      if guessed_letters.include?(letter)
+        @secret_word += letter
+      else
+        @secret_word += '_'
+      end
+    end
   end
 
   def display_secret_word
@@ -65,7 +74,6 @@ class Game
 
   def display_information
     display_turn
-    update_secret_word
     display_secret_word
     display_player_tries
     ask_player_letter
@@ -91,6 +99,54 @@ class Game
   def add_turn
     @turn += 1
   end
+
+  def update_guessed_letters(letter)
+    @guessed_letters += letter
+  end
+
+  def analyze_letter(letter)
+    if letter_in_word?(letter)
+      update_guessed_letters(letter)
+    else
+      remove_player_try
+    end
+  end
+
+  def win?
+    @secret_word == @word
+  end
+
+  def display_word
+    puts word
+  end
+
+  def display_lose_message
+    puts 'You lose!' unless win?
+  end
+
+  def display_endgame_message
+    display_lose_message
+    display_word
+  end
+
+  def calculate_results
+    letter = obtain_player_letter
+    analyze_letter(letter)
+    update_secret_word
+  end
+
+  def play_game
+    while player.tries.positive?
+      display_information
+      calculate_results
+      if win?
+        puts 'You won!'
+        break
+      end
+      add_turn
+    end
+    display_endgame_message
+  end
 end
 
 class Player
@@ -107,13 +163,4 @@ end
 
 pl = Player.new
 g = Game.new(pl)
-while pl.tries.positive?
-  g.display_information
-  letter = g.obtain_player_letter
-  if g.letter_in_word?(letter)
-    puts 'correct letter'
-  else
-    g.remove_player_try
-  end
-  g.add_turn
-end
+g.play_game
