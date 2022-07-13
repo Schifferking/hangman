@@ -1,6 +1,8 @@
+require 'yaml'
+
 module Selectable
   def load_words
-    File.readlines('google-10000-english-no-swears.txt')
+    File.readlines('/home/schifferking/repos/ruby/hangman/lib/google-10000-english-no-swears.txt')
   end
 
   def trim_words(words)
@@ -84,6 +86,7 @@ class Game
 
     until letter?(letter) && !guessed_letters.include?(letter)
       letter = player.enter_letter
+      save_game if letter == 'save'
       break if letter?(letter) && !guessed_letters.include?(letter)
 
       ask_player_letter
@@ -147,6 +150,54 @@ class Game
     end
     display_endgame_message
   end
+
+  def display_overwrite_message
+    puts
+    puts 'It currently exists a file with that name.'
+    print 'Do you want to overwrite your save (y/n)? '
+  end
+
+  def ask_file_name
+    print 'Please enter the file name: '
+    gets.chomp
+  end
+
+  def display_save_message
+    puts 'You can save this game each turn if you enter the word save.'
+    puts 'Note: if you save the game, then the game will close.'
+    puts
+  end
+
+  def to_yaml
+    YAML.dump({
+                player: @player,
+                word: @word,
+                secret_word: @secret_word,
+                turn: @turn,
+                guessed_letters: @guessed_letters
+              })
+  end
+
+  def save_file(filename)
+    class_serialized = to_yaml
+    game_file = File.open(filename, 'w')
+    game_file.puts class_serialized
+    game_file.close
+  end
+
+  def save_game
+    path = '/home/schifferking/repos/ruby/hangman/saves/'
+    filename = "#{path}#{ask_file_name}.yaml"
+    while File.exist?(filename)
+      display_overwrite_message
+      player_response = player.enter_letter
+      break if player_response == 'y'
+
+      filename = "#{path}#{ask_file_name}.yaml"
+    end
+    save_file(filename)
+    abort
+  end
 end
 
 class Player
@@ -163,4 +214,5 @@ end
 
 pl = Player.new
 g = Game.new(pl)
+g.display_save_message
 g.play_game
