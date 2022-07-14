@@ -157,12 +157,8 @@ class Game
     print 'Do you want to overwrite your save (y/n)? '
   end
 
-  def ask_file_name
-    print 'Please enter the file name: '
-    gets.chomp
-  end
-
   def display_save_message
+    puts
     puts 'You can save this game each turn if you enter the word save.'
     puts 'Note: if you save the game, then the game will close.'
     puts
@@ -212,7 +208,65 @@ class Player
   end
 end
 
-pl = Player.new
-g = Game.new(pl)
-g.display_save_message
-g.play_game
+def start_game(game)
+  game.display_save_message
+  game.play_game
+end
+
+def ask_file_name
+  print 'Please enter the file name: '
+  gets.chomp
+end
+
+def ask_player_action
+  print 'If you want to load a save, please enter load: '
+  gets.chomp.downcase
+end
+
+def obtain_valid_filename(path)
+  extension = '.yaml'
+  filename = "#{path}#{ask_file_name}#{extension}"
+  until File.exist?(filename)
+    puts 'Filename not valid'
+    filename = "#{path}#{ask_file_name}#{extension}"
+  end
+  filename
+end
+
+def load_file(filename)
+  File.open(filename, 'r') { |file| file.read }
+end
+
+def from_yaml(file_contents)
+  data = YAML.load file_contents
+  g = Game.new(data[:player])
+  g.word = data[:word]
+  g.turn = data[:turn]
+  g.guessed_letters = data[:guessed_letters]
+  g.update_secret_word
+  g
+end
+
+def load_game(path)
+  filename = obtain_valid_filename(path)
+  file_content = load_file(filename)
+  from_yaml(file_content)
+end
+
+def analyze_player_action(action)
+  path = '/home/schifferking/repos/ruby/hangman/saves/'
+  if action == 'load'
+    if Dir.glob("#{path}*").size.zero?
+      puts 'There are no files saved'
+      puts 'Starting a new game'
+      Game.new(Player.new)
+    else
+      load_game(path)
+    end
+  else
+    Game.new(Player.new)
+  end
+end
+
+result = analyze_player_action(ask_player_action)
+start_game(result)
